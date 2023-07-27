@@ -1,21 +1,16 @@
-import h5py
-from tornado.web import authenticated, MissingArgumentError
-from jupyter_server.base.handlers import APIHandler
-from jupyter_server.utils import url_path_join
 from pathlib import Path
 
+import h5py
+from h5grove.content import (DatasetContent, EntityContent,
+                             ResolvedEntityContent, get_content_from_file,
+                             get_list_of_paths)
 from h5grove.encoders import encode
-from h5grove.content import (
-    get_content_from_file,
-    get_list_of_paths,
-    EntityContent,
-    ResolvedEntityContent,
-    DatasetContent,
-)
 from h5grove.utils import parse_bool_arg
+from jupyter_server.base.handlers import APIHandler
+from jupyter_server.utils import url_path_join
+from tornado.web import MissingArgumentError, authenticated
 
 from .utils import as_absolute_path, create_error
-
 
 H5PY_HAS_FILE_LOCKING_ARG = h5py.version.hdf5_version_tuple >= (1, 12, 1) or (
     h5py.version.hdf5_version_tuple[:2] == (1, 10)
@@ -36,12 +31,14 @@ class ContentHandler(BaseHandler):
             raise MissingArgumentError("File argument is required")
         path = self.get_query_argument("path", None)
         format_arg = self.get_query_argument("format", None)
+        token = self.get_query_argument("token", "")
 
         with get_content_from_file(
             as_absolute_path(self.base_dir, Path(file_path)),
             path,
             create_error,
             h5py_options={"locking": False} if H5PY_HAS_FILE_LOCKING_ARG else {},
+            token=token,
         ) as content:
             payload = self.parse_content(content)
 
@@ -91,11 +88,13 @@ class PathsHandler(BaseHandler):
         if file_path is None:
             raise MissingArgumentError("File argument is required")
         path = self.get_query_argument("path", None)
+        token = self.get_query_argument("token", "")
 
         with get_list_of_paths(
             as_absolute_path(self.base_dir, Path(file_path)),
             path,
             create_error,
+            token=token,
         ) as paths:
             response = encode(paths)
 

@@ -23,8 +23,9 @@ function TwoRenderApp() {
   );
 }
 
-function H5webApp(props: { filePath: string }) {
+function H5webApp(props: { filePath: string, token: string }) {
   const { filePath } = props;
+  const { token } = props;
   const { baseUrl } = ServerConnection.makeSettings();
 
   return (
@@ -32,6 +33,7 @@ function H5webApp(props: { filePath: string }) {
       <H5GroveProvider
         url={`${baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl}/h5web`}
         filepath={filePath}
+        token={token}
         axiosConfig={{ params: { file: filePath } }}
       >
         <TwoRenderApp />

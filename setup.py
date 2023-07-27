@@ -1,9 +1,10 @@
-from pathlib import Path
 import json
+from pathlib import Path
+
 import setuptools
 
 try:
-    from jupyter_packaging import wrap_installers, npm_builder, get_data_files
+    from jupyter_packaging import get_data_files, npm_builder, wrap_installers
 except ImportError as e:
     raise ImportError(
         "Build tool `jupyter-packaging` is missing. Install it with pip or conda."
@@ -54,7 +55,11 @@ setup_args = dict(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    install_requires=["jupyter_server>=1.6,<3", "h5grove==1.3.0", "h5py>=3.5"],
+    install_requires=[
+        "jupyter_server>=1.6,<3",
+        "h5grove @ git+https://github.com/betolink/h5grove.git",
+        "h5py>=3.5",
+    ],
     extras_require={"full": ["hdf5plugin"]},
     python_requires=">=3.8",
     zip_safe=False,

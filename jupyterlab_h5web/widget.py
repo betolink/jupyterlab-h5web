@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Dict, Tuple, Union
+
 from IPython.core.display import DisplayObject
+
 from .utils import as_absolute_path
 
 
@@ -9,11 +11,13 @@ class H5Web(DisplayObject):
 
     def __init__(self, file_path: Union[str, Path], **kwargs) -> None:
         # "Data" here is the path to the HDF5 file.
-        self.data = as_absolute_path(Path.cwd(), Path(file_path))
+        if type(file_path) is str and file_path.startswith("https://"):
+            self.data = file_path
+        else:
+            self.data = as_absolute_path(Path.cwd(), Path(file_path))
         self.metadata = {}
         if kwargs:
             self.metadata.update(kwargs)
-        self._check_data()
 
     def _check_data(self) -> None:
         if not self.data.is_file():
